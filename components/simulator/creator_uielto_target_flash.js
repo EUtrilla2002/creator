@@ -83,8 +83,9 @@
                         flash_url     = "http://localhost:8080",
                         */
 
-                        flashing = false,
-                        running  = false,
+                        flashing  = false,
+                        running   = false,
+                        debugging = false,
                       }
                     },
 
@@ -299,6 +300,28 @@
 
                         //Google Analytics
                         creator_ga('simulator', 'simulator.monitor', 'simulator.monitor');
+                      },
+                      
+                      do_debug( )
+                      {
+                        this.save();
+
+                        this.debugging = true;
+
+                        var farg =  {
+                                      target_board: this.target_board,
+                                      target_port:  this.target_port,
+                                      assembly:     code_assembly,
+                                    } ;
+
+                        this_env = this;
+                        gateway_remote_monitor(this.flash_url + "/debug", farg).then( function(data)  { 
+                                                                                                          this_env.debugging = false; 
+                                                                                                          //show_notification(data, 'danger') ;
+                                                                                                        } ) ;
+
+                        //Google Analytics
+                        creator_ga('simulator', 'simulator.debug', 'simulator.debug');
                       },
 
                       //
@@ -641,19 +664,26 @@
                     '           <br>' +
                     ' ' +
                     '           <b-container fluid align-h="center" class="mx-0 px-0">' +
-                    '             <b-row cols="2" align-h="center">' +
-                    '               <b-col class="pt-2">' +
+                    '             <b-row cols="3" align-h="center">' +
+                    '               <b-col class="pt-3">' +
                     '                 <b-button class="btn btn-sm btn-block" variant="primary" @click="do_flash" :pressed="flashing" :disabled="flashing || running">' +
                     '                   <span v-if="!flashing"><span class="fas fa-bolt-lightning"></span> Flash</span>' +
                     '                   <span v-if="flashing"><span class="fas fa-bolt-lightning"></span>  Flashing...</span>' +
                     '                   <b-spinner small v-if="flashing"></b-spinner>' +
                     '                 </b-button>' +
                     '               </b-col>' +
-                    '               <b-col class="pt-2">' +
-                    '                 <b-button class="btn btn-sm btn-block" variant="primary" @click="do_monitor" :pressed="running" :disabled="running || flashing">' +
+                    '               <b-col class="pt-3">' +
+                    '                 <b-button class="btn btn-sm btn-block" variant="primary" @click="do_monitor" :pressed="running" :disabled="running || flashing || debugging">' +
                     '                   <span v-if="!running"><span class="fas fa-play"></span> Monitor</span>' +
                     '                   <span v-if="running"><span class="fas fa-play"></span>  Runing...</span>' +
                     '                   <b-spinner small v-if="running"></b-spinner>' +
+                    '                 </b-button>' +
+                    '               </b-col>' +
+                    '               <b-col class="pt-3">' +
+                    '                 <b-button class="btn btn-sm btn-block" variant="primary" @click="do_debug" :pressed="debugging" :disabled="debugging || flashing || running">' +
+                    '                   <span v-if="!debugging"><span class="fas fa-bug"></span> Debug</span>' +
+                    '                   <span v-if="debugging"><span class="fas fa-bug"></span>  Debugging...</span>' +
+                    '                   <b-spinner small v-if="debugging"></b-spinner>' +
                     '                 </b-button>' +
                     '               </b-col>' +
                     '             </b-row>' +
